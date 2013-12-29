@@ -59,18 +59,17 @@ RxConnect4.prototype = {
             }).publish();
 
         var enter = dataObs
+
+            // Cannot fill the top row.
+            // Must be enter command
+            // current node must not have a piece already
             .filter(function(data) {
-                return data.enter;
+                return data.enter && !data.currentNode.data.hasPiece && data.currentNode.row !== 0;
             })
             .doAction(function(data) {
 
                 // sets a piece.
                 var nodeData = data.currentNode.data;
-
-                // You can't do that!
-                if (data.hasPiece) {
-                    return;
-                }
 
                 nodeData.hasPiece = true;
                 select(data.currentNode.data.viewNode.$el, players[data.currentPlayerIdx]);
@@ -152,9 +151,14 @@ function colorNodesAndColumns(curr, prev, player) {
         setHoverColumn($el, player);
     }
 
-    reset($currEl);
-    reset(prev.data.viewNode.$el);
-    setHover($currEl, player);
+    if (!prev.data.hasPiece) {
+        reset(prev.data.viewNode.$el);
+    }
+
+    if (!curr.data.hasPiece) {
+        reset($currEl);
+        setHover($currEl, player);
+    }
 }
 
 function selectNextAvailableNodeInColumn(node) {

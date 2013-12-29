@@ -12,7 +12,9 @@ var Node = function(name) {
     neighbors[Direction.LEFT] = this;
 
     // The name of the node
-    this.name = name;
+    this.name = name.join(',');
+    this.row = name[0];
+    this.column = name[1];
 };
 
 module.exports = Node;

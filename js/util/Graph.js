@@ -20,7 +20,7 @@ var Graph = {
 
             // Build column nodes.
             for (var c = 0; c < settings.columns; c++) {
-                var n = new Node([r, c].join(''));
+                var n = new Node([r, c]);
                 row.push(n);
 
                 if (r > 0) {

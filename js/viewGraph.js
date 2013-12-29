@@ -78,6 +78,10 @@ function adjustDimensionsAndPositions($graphContainer, graph) {
                 left: currentWidth
             });
             currentWidth += width;
+
+            if (r === 0) {
+                getViewNode(graph[r][c]).$el.addClass('no-use');
+            }
         }
         currentHeight += height;
     }
