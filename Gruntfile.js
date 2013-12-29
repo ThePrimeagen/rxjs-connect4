@@ -1,5 +1,5 @@
 /*
- * Build for the tic tac toe rx modules.
+ * Build for the Connect4 modules.
  *
  * Copyright (c) 2013 Michael Brady Paulson
  * Licensed under the MIT license.
@@ -13,6 +13,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
 
+    // TODO: Clearly turn this into a build.json project.  Time for a refactor.
     // Project configuration.
     grunt.initConfig({
         // Configuration to be run (and then tested).
@@ -44,9 +45,3 @@ module.exports = function (grunt) {
     // By default, lint and run all tests.
     grunt.registerTask('default', ['build_me', 'watch']);
 };
-
-
-function browserifyBuild(options) {
-    var requires = options.requires;
-    var b = browserify();
-}

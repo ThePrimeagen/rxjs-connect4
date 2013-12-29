@@ -64,6 +64,18 @@ RxConnect4.prototype = {
             })
             .doAction(function(data) {
 
+                // sets a piece.
+                var nodeData = data.currentNode.data;
+
+                // You can't do that!
+                if (data.hasPiece) {
+                    return;
+                }
+
+                nodeData.hasPiece = true;
+                select(data.currentNode.data.viewNode.$el, players[data.currentPlayerIdx]);
+                data.currentNode = selectNextAvailableNodeInColumn(data.currentNode);
+
                 // Sets the new player
                 data.currentPlayerIdx = ++data.currentPlayerIdx % 2;
                 colorNodesAndColumns(data.currentNode, data.currentNode, players[data.currentPlayerIdx]);
@@ -78,17 +90,10 @@ RxConnect4.prototype = {
 
             // Goes through the nodes and finds the node to start on
             .select(function(data) {
-                var curr = data.currentNode;
-                var next = null;
-                var dir = curr.data.hasPiece ? Direction.UP : Direction.DOWN;
+                var next = selectNextAvailableNodeInColumn(data.currentNode);
 
-                // Finds the proper node.
-                while ((next = curr.getNeighbor(dir)).name !== curr.name && next.data.hasPiece && !curr.data.hasPiece) {
-                    curr = next;
-                }
-
-                if (data.currentNode.name !== curr.name) {
-                    data.currentNode = curr;
+                if (data.currentNode.name !== next.name) {
+                    data.currentNode = next;
                 }
 
                 return data;
@@ -152,12 +157,26 @@ function colorNodesAndColumns(curr, prev, player) {
     setHover($currEl, player);
 }
 
-function animateCells(startNode) {
+function selectNextAvailableNodeInColumn(node) {
+    var next = null;
+    var dir = node.data.hasPiece ? Direction.UP : Direction.DOWN;
 
-    // swells and unswells nodes.
+    // Gets the next node
+    // 1: Verifies that they are not the same node
+    // 2:  If up: the current node has a piece
+    // 2.1: If down: the next node does not have a piece.
+    while ((next = node.getNeighbor(dir)).name !== node.name && (dir === Direction.UP && node.data.hasPiece || dir === Direction.DOWN && !next.data.hasPiece)) {
+        node = next;
+    }
 
+    return node;
 }
 
+function select($el, player) {
+    return reset($el)
+        .addClass(player)
+        .addClass('selected');
+}
 
 function reset($el) {
     return $el
