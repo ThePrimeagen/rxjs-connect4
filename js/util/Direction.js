@@ -1,51 +1,51 @@
 var rxKeyboard = require('./rxKeyboard')
 
-var Direction = function(direction) {
-    this.direction = direction;
-};
+var Direction = {};
+
+function filterLR(code) {
+    return code === leftCode || code === rightCode;
+}
+
+function selectDirection(code) {
+    return Direction.codeToDirection[code];
+}
+
+function filterDirectionsOnly(code) {
+    return code === leftCode ||
+        code === upCode ||
+        code === rightCode ||
+        code === downCode;
+}
 
 // -----------------------------------------------------------------
 // Static
 // -----------------------------------------------------------------
+var up, down, left, right;
 
-Direction.UP = 'up';
-Direction.DOWN = 'down';
-Direction.LEFT = 'left';
-Direction.RIGHT = 'right';
+Direction.UP = up = 'up';
+Direction.DOWN = down = 'down';
+Direction.LEFT = left = 'left';
+Direction.RIGHT = right = 'right';
 
-Direction.reverseMap = {};
-Direction.reverseMap[Direction.UP] = Direction.DOWN;
-Direction.reverseMap[Direction.DOWN] = Direction.UP;
-Direction.reverseMap[Direction.LEFT] = Direction.RIGHT;
-Direction.reverseMap[Direction.RIGHT] = Direction.LEFT;
+var upCode = 38;
+var downCode = 40;
+var leftCode = 37;
+var rightCode = 39;
 
 Direction.codeToDirection = {};
-Direction.codeToDirection[37] = Direction.LEFT;
-Direction.codeToDirection[38] = Direction.UP;
-Direction.codeToDirection[39] = Direction.RIGHT;
-Direction.codeToDirection[40] = Direction.DOWN;
+Direction.codeToDirection[leftCode] = left;
+Direction.codeToDirection[upCode] = up;
+Direction.codeToDirection[rightCode] = right;
+Direction.codeToDirection[downCode] = down;
 
-Direction.onKeyboardDirection = rxKeyboard()
-    .select(function(code) {
-        return Direction.codeToDirection[code];
-    })
-    .filter(function(code) {
-        return code !== undefined;
-    });
+var directionToCode;
+Direction.directionToCode = directionToCode = {};
+Direction.directionToCode[left] = leftCode;
+Direction.directionToCode[up] = upCode;
+Direction.directionToCode[right] = rightCode;
+Direction.directionToCode[down] = downCode;
 
-// -----------------------------------------------------------------
-// Instance methods
-// -----------------------------------------------------------------
-Direction.prototype = {
-    set direction(value) { this._direction = value; },
-    get direction() { return this._direction; },
-
-    /**
-     * Reverses, 180, PI, the current direction
-     */
-    reverse: function() {
-        this.direction = Direction.reverseMap(this.direction);
-    }
-};
+Direction.onKeyboardDirection = rxKeyboard().filter(filterDirectionsOnly).select(selectDirection);
+Direction.onKeyboardDirectionLR = rxKeyboard().filter(filterLR).select(selectDirection);
 
 module.exports = Direction;

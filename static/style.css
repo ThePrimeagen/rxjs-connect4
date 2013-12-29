@@ -1,0 +1,35 @@
+.node {
+    width: 30px;
+    height: 30px;
+    float: left;
+}
+
+.graph {
+    width: 270px;
+    height: 300px;
+    position: relative;
+}
+
+.p1.hover {
+    background-color: #38b2ce
+}
+
+.p1.hover.column {
+    background-color: #8ad5e7
+}
+
+.p1.selected {
+    background-color: #04819e
+}
+
+.p2.hover {
+    background-color: #ff9f40
+}
+
+.p2.hover.column {
+    background-color: #ff7f00
+}
+
+.p2.selected {
+    background-color: #ffca96
+}
