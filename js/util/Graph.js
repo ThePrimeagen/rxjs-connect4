@@ -1,5 +1,6 @@
 var Direction = require('./Direction');
 var _ = require('lodash');
+var Node = require('./Node');
 
 var Graph = {
     /**

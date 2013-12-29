@@ -1,12 +1,13 @@
 .node {
     width: 30px;
     height: 30px;
+    border: #EEE 1px solid;
     float: left;
 }
 
 .graph {
-    width: 270px;
-    height: 300px;
+    width: 288px;
+    height: 320px;
     position: relative;
 }
 
@@ -23,11 +24,11 @@
 }
 
 .p2.hover {
-    background-color: #ff9f40
+    background-color: #ff7f00
 }
 
 .p2.hover.column {
-    background-color: #ff7f00
+    background-color: #ff9f40
 }
 
 .p2.selected {

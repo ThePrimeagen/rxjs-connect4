@@ -24,6 +24,7 @@ module.exports = function (grunt) {
                     require: {
                         './node_modules/rx/rx.lite.js': 'rx',
                         './node_modules/rx/rx.binding.js': 'rx-binding',
+                        './js/RxConnect4.js': 'RxConnect4',
                         'jquery-browserify': 'jquery',
                         './js/main.js': 'TicTacToe'
                     }

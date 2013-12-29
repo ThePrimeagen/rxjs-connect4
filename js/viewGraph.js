@@ -35,6 +35,7 @@ var viewGraph = function($container, options) {
             }
 
             cols[c].push(node);
+            $graphContainer.append(node.$el);
         }
         nodes.push(row);
     }
