@@ -1,36 +1,42 @@
-.node {
-    width: 30px;
-    height: 30px;
+#game .node {
     border: #EEE 1px solid;
-    float: left;
+    position: absolute;
 }
 
-.graph {
-    width: 288px;
-    height: 320px;
+#game .graph {
+    width: 100%;
+    height: 100%;
     position: relative;
 }
 
-.p1.hover {
+#game {
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    left: 5px;
+    right: 5px;
+}
+
+#game .p1.hover {
     background-color: #38b2ce
 }
 
-.p1.hover.column {
+#game .p1.hover.column {
     background-color: #8ad5e7
 }
 
-.p1.selected {
+#game .p1.selected {
     background-color: #04819e
 }
 
-.p2.hover {
-    background-color: #ff7f00
-}
-
-.p2.hover.column {
+#game .p2.hover {
     background-color: #ff9f40
 }
 
-.p2.selected {
+#game .p2.hover.column {
     background-color: #ffca96
+}
+
+#game .p2.selected {
+    background-color: #ff7f00
 }

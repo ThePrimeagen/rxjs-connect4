@@ -28,12 +28,18 @@ RxConnect4.prototype = {
         // gets the keyboard observable and starts the game.
         var players = ['p1', 'p2'];
         var keyboardObs = rxKeyboard(13).merge(Direction.onKeyboardDirectionLR);
+
+        // TODO:  How would i do this differently.  How do i keep state without keeping state (thats what she said?)?
+        // FIXME: Fix the above todo.
         var firstData = {
             currentNode: this._firstNode,
             prevNode: false,
             currentPlayerIdx: 0,
             enter: false
         };
+
+        // initial placement must be colored.
+        colorNodesAndColumns(this._firstNode, this._firstNode, players[0]);
 
         var dataObs = keyboardObs
 
@@ -57,7 +63,10 @@ RxConnect4.prototype = {
                 return data.enter;
             })
             .doAction(function(data) {
+
+                // Sets the new player
                 data.currentPlayerIdx = ++data.currentPlayerIdx % 2;
+                colorNodesAndColumns(data.currentNode, data.currentNode, players[data.currentPlayerIdx]);
             });
 
         var dir = dataObs
@@ -90,33 +99,18 @@ RxConnect4.prototype = {
                 var curr = data.currentNode;
                 var prev = data.prevNode;
                 var player = players[data.currentPlayerIdx];
-                var $currEl = curr.data.viewNode.$el;
 
-                // Its not a same change.
                 if (curr.name !== prev.name) {
-                    var nodes = getNodes(curr, Direction.UP);
-                    var removes = getNodes(prev, Direction.UP);
-                    var i = 0;
-                    var $el;
 
-                    for (i = 0; i < nodes.length; i++) {
-                        $el = nodes[i].data.viewNode.$el;
-                        reset($el);
-                        setHoverColumn($el, player);
-                    }
-                    for (i = 0; i < removes.length; i++) {
-                        $el = removes[i].data.viewNode.$el;
-                        reset($el);
-                    }
-
-                    reset($currEl);
-                    reset(prev.data.viewNode.$el);
-                    setHover($currEl, player);
+                    // Only recolors on name change.
+                    colorNodesAndColumns(curr, prev, player);
                 }
             });
 
 
+        // Now that all observers are listening, we will connect.
         dataObs.connect();
+
         // Merges and subscribes to them.
         Rx.Observable.merge(dir, enter).subscribe();
     }
@@ -134,6 +128,34 @@ function getNodes(node, direction) {
     }
 
     return nodes;
+}
+
+function colorNodesAndColumns(curr, prev, player) {
+    var $currEl = curr.data.viewNode.$el;
+    var nodes = getNodes(curr, Direction.UP);
+    var removes = getNodes(prev, Direction.UP);
+    var i = 0;
+    var $el;
+
+    for (i = 0; i < removes.length; i++) {
+        $el = removes[i].data.viewNode.$el;
+        reset($el);
+    }
+    for (i = 0; i < nodes.length; i++) {
+        $el = nodes[i].data.viewNode.$el;
+        reset($el);
+        setHoverColumn($el, player);
+    }
+
+    reset($currEl);
+    reset(prev.data.viewNode.$el);
+    setHover($currEl, player);
+}
+
+function animateCells(startNode) {
+
+    // swells and unswells nodes.
+
 }
 
 
