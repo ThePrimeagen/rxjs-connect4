@@ -6,6 +6,8 @@ var Graph = require('./util/Graph');
 var rxKeyboard = require('./util/rxKeyboard');
 var Direction = require('./util/Direction');
 var viewGraph = require('./viewGraph');
+var ux = require('./functions/ux');
+var GameLogic = require('./functions/GameLogic');
 
 var RxConnect4 = function($container) {
     var g = Graph.grid({
@@ -18,6 +20,7 @@ var RxConnect4 = function($container) {
         graph: g
     });
     this._firstNode = g[9][4];
+    this._graph = g;
 };
 
 RxConnect4.prototype = {
@@ -39,7 +42,7 @@ RxConnect4.prototype = {
         };
 
         // initial placement must be colored.
-        colorNodesAndColumns(this._firstNode, this._firstNode, players[0]);
+        ux.colorNodes(this._firstNode, this._firstNode, players[0]);
 
         var dataObs = keyboardObs
 
@@ -72,13 +75,13 @@ RxConnect4.prototype = {
                 var nodeData = data.currentNode.data;
 
                 nodeData.hasPiece = true;
-                select(data.currentNode.data.viewNode.$el, players[data.currentPlayerIdx]);
-                data.currentNode = selectNextAvailableNodeInColumn(data.currentNode);
+                ux.select(data.currentNode.data.viewNode.$el, players[data.currentPlayerIdx]);
+                data.currentNode = ux.nextAvailableNodeInColumn(data.currentNode);
 
                 // Sets the new player
                 data.currentPlayerIdx = ++data.currentPlayerIdx % 2;
-                colorNodesAndColumns(data.currentNode, data.currentNode, players[data.currentPlayerIdx]);
-            });
+                ux.colorNodes(data.currentNode, data.currentNode, players[data.currentPlayerIdx]);
+            }).publish();
 
         var dir = dataObs
 
@@ -89,7 +92,7 @@ RxConnect4.prototype = {
 
             // Goes through the nodes and finds the node to start on
             .select(function(data) {
-                var next = selectNextAvailableNodeInColumn(data.currentNode);
+                var next = ux.nextAvailableNodeInColumn(data.currentNode);
 
                 if (data.currentNode.name !== next.name) {
                     data.currentNode = next;
@@ -107,100 +110,23 @@ RxConnect4.prototype = {
                 if (curr.name !== prev.name) {
 
                     // Only recolors on name change.
-                    colorNodesAndColumns(curr, prev, player);
+                    ux.colorNodes(curr, prev, player);
                 }
             });
 
 
         // Now that all observers are listening, we will connect.
         dataObs.connect();
+        enter.connect();
 
         // Merges and subscribes to them.
-        Rx.Observable.merge(dir, enter).subscribe();
+        Rx.Observable
+            .merge(dir, enter)
+//            .takeUntil(GameLogic.isThereWinner(this._graph, enter))
+            .subscribe();
     }
 };
 
 module.exports = RxConnect4;
-
-function getNodes(node, direction) {
-    var nodes = [];
-    var next = null;
-    var curr = node;
-    while ((next = curr.getNeighbor(direction)).name !== curr.name) {
-        nodes.push(next);
-        curr = next;
-    }
-
-    return nodes;
-}
-
-function colorNodesAndColumns(curr, prev, player) {
-    var $currEl = curr.data.viewNode.$el;
-    var nodes = getNodes(curr, Direction.UP);
-    var removes = getNodes(prev, Direction.UP);
-    var i = 0;
-    var $el;
-
-    for (i = 0; i < removes.length; i++) {
-        $el = removes[i].data.viewNode.$el;
-        reset($el);
-    }
-    for (i = 0; i < nodes.length; i++) {
-        $el = nodes[i].data.viewNode.$el;
-        reset($el);
-        setHoverColumn($el, player);
-    }
-
-    if (!prev.data.hasPiece) {
-        reset(prev.data.viewNode.$el);
-    }
-
-    if (!curr.data.hasPiece) {
-        reset($currEl);
-        setHover($currEl, player);
-    }
-}
-
-function selectNextAvailableNodeInColumn(node) {
-    var next = null;
-    var dir = node.data.hasPiece ? Direction.UP : Direction.DOWN;
-
-    // Gets the next node
-    // 1: Verifies that they are not the same node
-    // 2:  If up: the current node has a piece
-    // 2.1: If down: the next node does not have a piece.
-    while ((next = node.getNeighbor(dir)).name !== node.name && (dir === Direction.UP && node.data.hasPiece || dir === Direction.DOWN && !next.data.hasPiece)) {
-        node = next;
-    }
-
-    return node;
-}
-
-function select($el, player) {
-    return reset($el)
-        .addClass(player)
-        .addClass('selected');
-}
-
-function reset($el) {
-    return $el
-        .removeClass('p1')
-        .removeClass('p2')
-        .removeClass('hover')
-        .removeClass('column');
-}
-
-function setHover($el, player) {
-    return $el
-        .addClass(player)
-        .addClass('hover');
-}
-
-function setHoverColumn($el, player) {
-    return $el
-        .addClass(player)
-        .addClass('hover')
-        .addClass('column');
-}
 
 
