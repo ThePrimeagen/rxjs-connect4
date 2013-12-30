@@ -1,4 +1,5 @@
 var _ = require('lodash');
+var Rx = require('rx');
 var Direction = require('util.Direction');
 var GameLogic = {};
 
@@ -40,24 +41,24 @@ _.assign(GameLogic, {
                     for (c = 0; c < graph[0].length; c++) {
                         var node = graph[r][c];
                         if (node.data.hasPiece) {
-                            var down = count(node, nextDownNode);
-                            if (down.count === 4) {
+                            var down = countAndNodes(node, nextDownNode);
+                            if (down.count >= 3) {
                                 console.log('Found it(DOWN): ' + down.nodes);
                                 observer.onNext();
                                 observer.onCompleted();
                                 break;
                             }
 
-                            var right = count(node, nextRightNode);
-                            if (right.count === 4) {
+                            var right = countAndNodes(node, nextRightNode);
+                            if (right.count >= 3) {
                                 console.log('Found it(RIGHT): ' + right.nodes);
                                 observer.onNext();
                                 observer.onCompleted();
                                 break;
                             }
 
-                            var diagonal = count(node, nextDiagonalNode);
-                            if (diagonal.count === 4) {
+                            var diagonal = countAndNodes(node, nextDiagonalNode);
+                            if (diagonal.count >= 3) {
                                 console.log('Found it(DIAG): ' + diagonal.nodes);
                                 observer.onNext();
                                 observer.onCompleted();
@@ -66,7 +67,7 @@ _.assign(GameLogic, {
                         }
                     }
                 }
-            });
+            }).subscribe();
         });
     }
 });
@@ -112,7 +113,7 @@ function countAndNodes(startNode, nextNodeFn) {
         return;
     }
 
-    while ((next = nextNodeFn(startNode)).name !== curr.name && next.data.hasPiece && getPlayerFromPiece(next.data.viewNode.$el) === player) {
+    while ((next = nextNodeFn(curr)).name !== curr.name && next.data.hasPiece && getPlayerFromPiece(next.data.viewNode.$el) === player) {
         curr = next;
         count++;
         nodes.push(curr);

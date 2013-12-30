@@ -119,10 +119,13 @@ RxConnect4.prototype = {
         dataObs.connect();
         enter.connect();
 
+        var gameWinObservable = GameLogic.isThereWinner(this._graph, enter);
+        gameWinObservable.subscribe();
+
         // Merges and subscribes to them.
         Rx.Observable
             .merge(dir, enter)
-//            .takeUntil(GameLogic.isThereWinner(this._graph, enter))
+            .takeUntil(gameWinObservable)
             .subscribe();
     }
 };
