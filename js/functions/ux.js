@@ -3,6 +3,7 @@ var Rx = require('rx');
 var Direction = require('util.Direction');
 
 var ux = {};
+var NOOP = function() {};
 module.exports = ux;
 
 // Assigns the
@@ -68,6 +69,79 @@ _.assign(ux, {
         return reset($el)
             .addClass(player)
             .addClass('selected');
+    },
+
+    /**
+     * Throbs the $el over time
+     * @param {jQueryElement} $el
+     */
+    throb: function($el, rounds) {
+        var throbUpSettings = {
+            width: '+=10px',
+            height: '+=10px',
+            'margin-top': '-=5px',
+            'margin-left': '-=5px',
+            'margin-right': '-=5px',
+            'margin-down': '-=5px'
+        };
+        var throbDownSettings = {
+            width: '-=10px',
+            height: '-=10px',
+            'margin-top': '+=5px',
+            'margin-left': '+=5px',
+            'margin-right': '+=5px',
+            'margin-down': '+=5px'
+        };
+
+        var animate = this._animate;
+
+        return Rx.Observable.create(function(observer) {
+
+            throbUp(0);
+            function throbUp(count) {
+                $el.css({'z-index': 1000});
+                var sub = animate($el, throbUpSettings, 350)
+                    .subscribe(NOOP, NOOP, function() {
+                        sub.dispose();
+                        throbDown(count);
+                    });
+            }
+
+            function throbDown(count) {
+                var sub = animate($el, throbDownSettings, 350)
+                    .subscribe(NOOP, NOOP, function() {
+                        sub.dispose();
+                        $el.css({'z-index': 1});
+
+                        if (count < rounds) {
+                            throbUp(count + 1);
+                        } else {
+                            observer.onNext();
+                            observer.onCompleted();
+                        }
+                    });
+            }
+        });
+    },
+
+    /**
+     * Animates the element with the properties passed in.
+     * @param properties
+     * @param time
+     */
+    _animate: function($el, properties, time) {
+        return Rx.Observable.create(function(observer) {
+            // starts the animation
+            $el.animate(properties, time, function() {
+                observer.onNext();
+                observer.onCompleted();
+            });
+
+            // stops the animation
+            return function() {
+                $el.stop(true, true);
+            };
+        });
     }
 });
 

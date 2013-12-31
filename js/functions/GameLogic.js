@@ -11,7 +11,7 @@ _.assign(GameLogic, {
      * @param graph
      */
     isThereWinner: function(graph, boardAlteredObservable) {
-        return Rx.Observable.create(function(observer) {
+        var winnerObservable = Rx.Observable.create(function(observer) {
             boardAlteredObservable.doAction(function() {
                 var countGraph = [];
                 var playerGraph = [];
@@ -37,6 +37,7 @@ _.assign(GameLogic, {
                     playerGraph.push(pRow);
                 }
 
+                // Do not follow this crappy code.  It is a hack to get something working right away.
                 for (r = 1; r < graph.length; r++) {
                     for (c = 0; c < graph[0].length; c++) {
                         var node = graph[r][c];
@@ -44,31 +45,42 @@ _.assign(GameLogic, {
                             var down = countAndNodes(node, nextDownNode);
                             if (down.count >= 3) {
                                 console.log('Found it(DOWN): ' + down.nodes);
-                                observer.onNext();
-                                observer.onCompleted();
-                                break;
+                                observer.onNext(down.nodes);
+                                observer.onCompleted(down.nodes);
+                                return;
                             }
 
                             var right = countAndNodes(node, nextRightNode);
                             if (right.count >= 3) {
                                 console.log('Found it(RIGHT): ' + right.nodes);
-                                observer.onNext();
-                                observer.onCompleted();
-                                break;
+                                observer.onNext(right.nodes);
+                                observer.onCompleted(right.nodes);
+                                return;
                             }
 
-                            var diagonal = countAndNodes(node, nextDiagonalNode);
-                            if (diagonal.count >= 3) {
-                                console.log('Found it(DIAG): ' + diagonal.nodes);
-                                observer.onNext();
-                                observer.onCompleted();
-                                break;
+                            var diagRD = countAndNodes(node, nextDiagonalNodeRD);
+                            if (diagRD.count >= 3) {
+                                console.log('Found it(DIAG): ' + diagRD.nodes);
+                                observer.onNext(diagRD.nodes);
+                                observer.onCompleted(diagRD.nodes);
+                                return;
+                            }
+
+                            var diagLD = countAndNodes(node, nextDiagonalNodeLD);
+                            if (diagLD.count >= 3) {
+                                console.log('Found it(DIAG): ' + diagLD.nodes);
+                                observer.onNext(diagLD.nodes);
+                                observer.onCompleted(diagLD.nodes);
+                                return;
                             }
                         }
                     }
                 }
             }).subscribe();
-        });
+        }).publish();
+
+        winnerObservable.connect();
+        return winnerObservable;
     }
 });
 
@@ -80,12 +92,24 @@ function nextRightNode(node) {
     return node.getNeighbor(Direction.RIGHT);
 }
 
-function nextDiagonalNode(node) {
+function nextDiagonalNodeRD(node) {
     var right = nextRightNode(node);
     var diagonal = nextDownNode(right);
 
     // Cannot go diagonal
     if (right.name === node.name || diagonal.name === right.name) {
+        return node;
+    }
+
+    return diagonal;
+}
+
+function nextDiagonalNodeLD(node) {
+    var left = node.getNeighbor(Direction.LEFT);
+    var diagonal = nextDownNode(left);
+
+    // Cannot go diagonal
+    if (left.name === node.name || diagonal.name === left.name) {
         return node;
     }
 
