@@ -3,3 +3,6 @@ A game built to try to learn more about functional programming.  In an attempt t
 
 ### Check it.
 So `RxConnect4.js` contains all the flow for the game.  `GameLogic.js` contains winning logic.  I am sure i could put more things in there, but i just don't really care ;).  `ux.js` contains all the sweet ux crud.  `Node` class contains a `data` element which really is the state of the node.  It contains `hasPiece` and `viewNode`.  I know this is not the best design, but its simple, fact.
+
+### Test this out.
+Ok so here is a story...
