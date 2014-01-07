@@ -1,1 +1,2 @@
-require('./RxConnect4');
+require('jspipe');
+require('./JsPipeConnect4');

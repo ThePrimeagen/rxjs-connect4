@@ -1,25 +1,4 @@
-var rxKeyboard = require('./rxKeyboard')
-
 var Direction = {};
-
-function filterLR(code) {
-    return code === leftCode || code === rightCode;
-}
-
-function selectDirection(code) {
-    return Direction.codeToDirection[code];
-}
-
-function filterDirectionsOnly(code) {
-    return code === leftCode ||
-        code === upCode ||
-        code === rightCode ||
-        code === downCode;
-}
-
-// -----------------------------------------------------------------
-// Static
-// -----------------------------------------------------------------
 var up, down, left, right;
 
 Direction.UP = up = 'up';
@@ -44,8 +23,5 @@ Direction.directionToCode[left] = leftCode;
 Direction.directionToCode[up] = upCode;
 Direction.directionToCode[right] = rightCode;
 Direction.directionToCode[down] = downCode;
-
-Direction.onKeyboardDirection = rxKeyboard().filter(filterDirectionsOnly).select(selectDirection);
-Direction.onKeyboardDirectionLR = rxKeyboard().filter(filterLR).select(selectDirection);
 
 module.exports = Direction;

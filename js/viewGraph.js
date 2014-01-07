@@ -1,6 +1,5 @@
 var $ = require('jquery');
 var ViewNode = require('./ViewNode');
-var Rx = require('rx');
 
 /**
  * creates a graph within the container provided.
@@ -44,7 +43,7 @@ var viewGraph = function($container, options) {
 
     // Adjusts all the widths and heights of nodes.
     adjustDimensionsAndPositions($graphContainer, graph);
-    Rx.Observable.fromEvent(window, 'resize').subscribe(function() {
+    $(window).resize(function() {
         adjustDimensionsAndPositions($graphContainer, graph);
     });
 };

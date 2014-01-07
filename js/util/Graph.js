@@ -1,6 +1,6 @@
 var Direction = require('./Direction');
-var _ = require('lodash');
 var Node = require('./Node');
+var $ = require('jquery');
 
 var Graph = {
     /**
@@ -10,7 +10,7 @@ var Graph = {
      */
     grid: function graph(config) {
         var board = [];
-        var settings = _.extend({
+        var settings = $.extend({
             rows: 3,
             columns: 3
         }, config);

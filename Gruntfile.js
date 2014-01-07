@@ -23,11 +23,10 @@ module.exports = function (grunt) {
                     main: './js/main.js',
                     out: './static/dist/main.js',
                     require: {
-                        './node_modules/rx/rx.lite.js': 'rx',
-                        './node_modules/rx/rx.binding.js': 'rx-binding',
                         './js/util/Direction.js': 'util.Direction',
-                        './js/RxConnect4.js': 'RxConnect4',
+                        './js/JsPipeConnect4.js': 'JsPipeConnect4',
                         'jquery-browserify': 'jquery',
+                        './js/external/jspipe': 'jspipe',
                         './js/main.js': 'TicTacToe'
                     }
                 }

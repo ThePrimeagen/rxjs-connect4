@@ -1,16 +1,15 @@
 var Rx = require('rx');
 var Observable = Rx.Observable;
-var _ = require('lodash');
 var $ = require('jquery');
 var Graph = require('./util/Graph');
-var rxKeyboard = require('./util/rxKeyboard');
+var rxKeyboard = require('./util/jspipe-keyboard');
 var Direction = require('./util/Direction');
 var viewGraph = require('./viewGraph');
 var ux = require('./functions/ux');
 var GameLogic = require('./functions/GameLogic');
 var NOOP = function() {};
 
-var RxConnect4 = function($container) {
+var JsPipeConnect4 = function($container) {
     this._$container = $container;
 };
 
@@ -19,11 +18,13 @@ var RxConnect4 = function($container) {
 // TODO: Restart when user wins
 // TODO: Add polling to a server and create cross internets play
 
-RxConnect4.prototype = {
+JsPipeConnect4.prototype = {
     /**
      * Starts the game loop
      */
     start: function() {
+
+
         (function createGameLife($container) {
             $container.empty();
 
@@ -172,6 +173,6 @@ function gameDataObservable(startNode) {
     return dataObs;
 }
 
-module.exports = RxConnect4;
+module.exports = JsPipeConnect4;
 
 

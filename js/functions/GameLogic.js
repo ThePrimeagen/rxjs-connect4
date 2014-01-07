@@ -1,119 +1,69 @@
-var _ = require('lodash');
 var Rx = require('rx');
 var Direction = require('util.Direction');
 var GameLogic = {};
 
 module.exports = GameLogic;
 
-_.assign(GameLogic, {
     /**
      * Takes the state of the world and determines if there is a winner or not.
      * @param graph
      */
-    isThereWinner: function(graph, boardAlteredObservable) {
-        var winnerObservable = Rx.Observable.create(function(observer) {
-            boardAlteredObservable.doAction(function() {
-                var countGraph = [];
-                var playerGraph = [];
-                var row, r, c;
-
-
-                for (r = 0; r < graph.length; r++) {
-                    row = [];
-                    var pRow = [];
-                    for (c = 0; c < graph[0].length; c++){
-                        row.push(0)
-                        var node = graph[r][c];
-
-                        if (node.data.hasPiece) {
-                            var viewNode = node.data.viewNode;
-                            var player = getPlayerFromPiece(viewNode.$el);
-                            pRow.push(player);
-                        } else {
-                            pRow.push('');
-                        }
-                    }
-                    countGraph.push(row);
-                    playerGraph.push(pRow);
-                }
-
-                // Do not follow this crappy code.  It is a hack to get something working right away.
-                for (r = 1; r < graph.length; r++) {
-                    for (c = 0; c < graph[0].length; c++) {
-                        var node = graph[r][c];
-                        if (node.data.hasPiece) {
-                            var down = countAndNodes(node, nextDownNode);
-                            if (down.count >= 3) {
-                                console.log('Found it(DOWN): ' + down.nodes);
-                                observer.onNext(down.nodes);
-                                observer.onCompleted(down.nodes);
-                                return;
-                            }
-
-                            var right = countAndNodes(node, nextRightNode);
-                            if (right.count >= 3) {
-                                console.log('Found it(RIGHT): ' + right.nodes);
-                                observer.onNext(right.nodes);
-                                observer.onCompleted(right.nodes);
-                                return;
-                            }
-
-                            var diagRD = countAndNodes(node, nextDiagonalNodeRD);
-                            if (diagRD.count >= 3) {
-                                console.log('Found it(DIAG): ' + diagRD.nodes);
-                                observer.onNext(diagRD.nodes);
-                                observer.onCompleted(diagRD.nodes);
-                                return;
-                            }
-
-                            var diagLD = countAndNodes(node, nextDiagonalNodeLD);
-                            if (diagLD.count >= 3) {
-                                console.log('Found it(DIAG): ' + diagLD.nodes);
-                                observer.onNext(diagLD.nodes);
-                                observer.onCompleted(diagLD.nodes);
-                                return;
-                            }
-                        }
-                    }
-                }
-            }).subscribe();
-        }).publish();
-
-        winnerObservable.connect();
-        return winnerObservable;
+GameLogic.isThereWinner = function(node) {
+    var down = countAndNodes(node, nextNode(Direction.DOWN));
+    var up = countAndNodes(node, nextNode(Direction.UP));
+    if (down.count + up.count >= 3) {
+        return down.nodes.concat(up.nodes);
     }
-});
 
-function nextDownNode(node) {
-    return node.getNeighbor(Direction.DOWN);
-}
+    var left = countAndNodes(node, nextNode(Direction.LEFT));
+    var right = countAndNodes(node, nextNode(Direction.RIGHT));
+    if (left.count + right.count >= 3) {
+        return left.nodes.concat(right.nodes);
+    }
 
-function nextRightNode(node) {
-    return node.getNeighbor(Direction.RIGHT);
+    var LU = countAndNodes(node, nextDiagonalNodeLU);
+    var RD = countAndNodes(node, nextDiagonalNodeRD);
+    if (LU.count + RD.count >= 3) {
+        return LU.nodes.concat(RD.nodes);
+    }
+
+    var LD = countAndNodes(node, nextDiagonalNodeLD);
+    var RU = countAndNodes(node, nextDiagonalNodeRU);
+    if (LD.count + RU.count >= 3) {
+        return LD.nodes.concat(RU.nodes);
+    }
+
+    return false;
+};
+
+function nextNode(direction) {
+    return function(node) {
+        return node.getNeighbor(direction);
+    }
 }
 
 function nextDiagonalNodeRD(node) {
-    var right = nextRightNode(node);
-    var diagonal = nextDownNode(right);
+    var right = node.getNeighbor(Direction.RIGHT);
+    var diagonal = right.getNeighbor(Direction.DOWN);
+    return areUnique(node, right, diagonal) ? diagonal : node;
+}
 
-    // Cannot go diagonal
-    if (right.name === node.name || diagonal.name === right.name) {
-        return node;
-    }
-
-    return diagonal;
+function nextDiagonalNodeRU(node) {
+    var right = node.getNeighbor(Direction.RIGHT);
+    var diagonal = right.getNeighbor(Direction.UP);
+    return areUnique(node, right, diagonal) ? diagonal : node;
 }
 
 function nextDiagonalNodeLD(node) {
     var left = node.getNeighbor(Direction.LEFT);
-    var diagonal = nextDownNode(left);
+    var diagonal = left.getNeighbor(Direction.DOWN);
+    return areUnique(node, left, diagonal) ? diagonal : node;
+}
 
-    // Cannot go diagonal
-    if (left.name === node.name || diagonal.name === left.name) {
-        return node;
-    }
-
-    return diagonal;
+function nextDiagonalNodeLU(node) {
+    var left = node.getNeighbor(Direction.LEFT);
+    var diagonal = left.getNeighbor(Direction.UP);
+    return areUnique(node, left, diagonal) ? diagonal : node;
 }
 
 function getPlayerFromPiece($el) {
@@ -126,6 +76,13 @@ function getPlayerFromPiece($el) {
     return '';
 }
 
+function areUnique(n1, n2, n3) {
+    // Cannot go diagonal
+    if (n2.name !== n1.name && n2.name !== n3.name) {
+        return true;
+    }
+    return false;
+}
 function countAndNodes(startNode, nextNodeFn) {
     var count = 0;
     var curr = startNode;
